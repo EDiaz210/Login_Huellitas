@@ -4,7 +4,7 @@
   "public": true,
   "functions": {
     "api/**/*.js": {
-      "runtime": "nodejs@24"
+      "runtime": "nodejs@24.11.0"
     }
   },
   "rewrites": [
