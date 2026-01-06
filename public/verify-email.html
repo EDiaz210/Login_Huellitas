@@ -128,8 +128,8 @@
                 </svg>
             </div>
             <h1>¡Email verificado!</h1>
-            <p>Tu cuenta ha sido verificada correctamente. Ya puedes iniciar sesión en la aplicación.</p>
-            <button class="button" onclick="openApp()">Abrir aplicación</button>
+            <p id="success-message">Tu cuenta ha sido verificada correctamente. Redirigiendo a la aplicación...</p>
+            <button class="button" id="open-app-btn" onclick="openApp()">Abrir aplicación</button>
         </div>
 
         <div id="error" class="hidden">
@@ -169,6 +169,11 @@
         function showSuccess() {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('success').classList.remove('hidden');
+            
+            // Intenta abrir la app automáticamente después de 2 segundos
+            setTimeout(() => {
+                tryOpenApp();
+            }, 2000);
         }
 
         function showError(message) {
@@ -177,12 +182,32 @@
             document.getElementById('error').classList.remove('hidden');
         }
 
-        function openApp() {
-            // Deep link a la aplicación TIBYHUELLITAS
-            window.location.href = 'tibyhuellitas://home';
-            // Fallback después de 2 segundos
+        function tryOpenApp() {
+            // Intenta abrir la app móvil
+            const appDeepLink = 'tibyhuellitas://verified';
+            
+            // Crear iframe invisible para intentar abrir deep link
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = appDeepLink;
+            document.body.appendChild(iframe);
+            
+            // Fallback: si después de 3 segundos la app no se abre, mostrar mensaje
             setTimeout(() => {
-                alert('Por favor abre la aplicación TIBYHUELLITAS manualmente.');
+                document.getElementById('success-message').textContent = 
+                    'Tu cuenta ha sido verificada. Si la aplicación no se abrió automáticamente, ábrela manualmente.';
+            }, 3000);
+        }
+
+        function openApp() {
+            // Abrir app cuando el usuario hace click en el botón
+            window.location.href = 'tibyhuellitas://verified';
+            
+            // Fallback
+            setTimeout(() => {
+                const btn = document.getElementById('open-app-btn');
+                btn.textContent = 'App no detectada';
+                btn.disabled = true;
             }, 2000);
         }
 
