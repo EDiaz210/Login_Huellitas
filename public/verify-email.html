@@ -169,7 +169,6 @@
             // Supabase envía token_hash en los enlaces de confirmación
             const tokenHash = urlParams.get('token_hash') || urlParams.get('token');
             const type = urlParams.get('type') || 'signup';
-            const email = urlParams.get('email') || '';
 
             if (!tokenHash || type !== 'signup') {
                 showError('Enlace de verificación inválido');
@@ -183,11 +182,10 @@
                     throw new Error('No se pudo conectar con el servidor');
                 }
 
-                // Verificar el email con Supabase (incluye email para mayor compatibilidad)
+                // Verificar el email con Supabase (solo token_hash y type)
                 const { data, error } = await supabaseClient.auth.verifyOtp({
                     token_hash: tokenHash,
-                    type: 'signup',
-                    email: email
+                    type: 'signup'
                 });
 
                 if (error) {
