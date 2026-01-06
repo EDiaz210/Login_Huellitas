@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificación de Email - TIBYHUELLITAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -145,6 +146,24 @@
     </div>
 
     <script>
+        let supabaseClient;
+
+        // Inicializar Supabase con credenciales del servidor
+        async function initSupabase() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const { createClient } = supabase;
+                supabaseClient = createClient(config.supabaseUrl, config.supabaseAnonKey);
+                
+                return true;
+            } catch (error) {
+                console.error('Error al inicializar Supabase:', error);
+                return false;
+            }
+        }
+
         async function verifyEmail() {
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
@@ -156,13 +175,26 @@
             }
 
             try {
-                // Supabase maneja la verificación automáticamente
-                // Redirige al deep link de la app
-                setTimeout(() => {
-                    showSuccess();
-                }, 1500);
+                // Inicializar Supabase primero
+                const initialized = await initSupabase();
+                if (!initialized) {
+                    throw new Error('No se pudo conectar con el servidor');
+                }
+
+                // Verificar el email con Supabase
+                const { data, error } = await supabaseClient.auth.verifyOtp({
+                    token_hash: token,
+                    type: 'signup'
+                });
+
+                if (error) {
+                    throw error;
+                }
+
+                showSuccess();
             } catch (error) {
-                showError(error.message);
+                console.error('Error de verificación:', error);
+                showError(error.message || 'Error al verificar el email');
             }
         }
 
